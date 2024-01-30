@@ -21,8 +21,8 @@
 			<li aria-current={$page.url.pathname === '/' ? 'page' : undefined}>
 				<a href="/">Home</a>
 			</li>
-			<li aria-current={$page.url.pathname.startsWith('/domain-insight') ? 'page' : undefined}>
-				<a href="/domain-insight">Domain Insight</a>
+			<li aria-current={$page.url.pathname.startsWith('/Post-insight') ? 'page' : undefined}>
+				<a href="/Post-insight">Post Insight</a>
 			</li>
 			<li aria-current={$page.url.pathname.startsWith('/seo-insight') ? 'page' : undefined}>
 				<a href="/seo-insight">SEO Insight</a>
