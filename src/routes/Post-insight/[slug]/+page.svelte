@@ -21,23 +21,12 @@
 <h1>
 	{$page.params.slug}
 </h1>
-
 <div class="flex">
 	<div class="post-iframe">
-		<iframe
-			src="https://www.facebook.com/"
-			width="500"
-			height="650"
-			title="facebook"
-			scrolling="no"
-			frameborder="0"
-			allowfullscreen="true"
-			allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
-		></iframe>
 	</div>
 	<div class="post-detail">
 		<ul>
-			<li>Post Name :{data.data[0].name}</li>
+			<li>Post Name :{data.data[0].url}</li>
 			<li>Like :</li>
 			<li>CMT</li>
 			<li>
