@@ -25,7 +25,7 @@
 				<a href="/Post-insight">Post Insight</a>
 			</li>
 			<li aria-current={$page.url.pathname.startsWith('/seo-insight') ? 'page' : undefined}>
-				<a href="/seo-insight">SEO Insight</a>
+				<a href="/Account-management">Account management</a>
 			</li>
 			<li aria-current={$page.url.pathname === '/about' ? 'page' : undefined}>
 				<a href="/about">About ZWI</a>
