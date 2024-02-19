@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	export let data;
+	console.log('dataaa :',data)
 	const handleDelete = async (id:string) => {
 		try {
 			const response = await fetch(`http://localhost:3001/SponsoredPost/${id}`, {
@@ -16,6 +17,29 @@
 			}
 		} catch (error) {}
 	};
+	interface IPayLoad{
+		url:string,
+		post:string
+	}
+	const handleGetProfile= async (payload:IPayLoad) =>{
+		console.log("payload :",payload);
+		try {
+			const response = await fetch(`http://localhost:3001/profileScan/`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body:JSON.stringify(payload)
+			});
+			if (response.ok) {
+				console.log('delete successfully');
+			} else {
+				console.error('failed to delete');
+			}
+		} catch (error) {
+			
+		}
+	}
 </script>
 
 <h1>
@@ -23,9 +47,12 @@
 </h1>
 <div class="flex">
 	<div class="post-iframe">
+		<p>
+			{@html data.data[0].rawUrl}
+		</p>
 	</div>
 	<div class="post-detail">
-		<ul>
+		<!-- <ul>
 			<li>Post Name :{data.data[0].url}</li>
 			<li>Like :</li>
 			<li>CMT</li>
@@ -45,9 +72,9 @@
 					<option value="audi">Audi</option>
 				</select>
 			</li>
-		</ul>
+		</ul> -->
 		<div>
-			<button>Get Profile</button>
+			<button on:click={()=>handleGetProfile({url:data.data[0].url,post:data.data[0]._id})}>Get Profile</button>
 			<button>Save</button>
 			<button on:click={()=>handleDelete(data.data[0].id)}>Delete Post</button>
 		</div>
