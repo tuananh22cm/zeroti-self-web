@@ -13,6 +13,11 @@
         ...visibleColumns.map(key => ({ id: key, name: key }))
 
 	];
+	import { selected } from '../+page.svelte';
+	const subscription = selected.subscribe(value => {
+  console.log("Selected value:   ;;;", value);
+});
+console.log("subscription :",subscription)
 </script>
 <svelte:head>
 	<title>account management</title>
@@ -22,3 +27,5 @@
 	<h1>account management</h1>
 </section>
 <DataGrid data={data.data} {columns} />
+<!-- //tuananka9zeroti -->
+<!-- tuananhdz5cmzeroti -->

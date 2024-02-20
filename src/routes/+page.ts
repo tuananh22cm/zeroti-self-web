@@ -1,3 +1,6 @@
-// since there's no dynamic data here, we can prerender
-// it so that it gets served as a static asset in production
-export const prerender = true;
+export async function load() {
+    console.log('Fetching data...');
+    const fetchAccount = await fetch(`http://localhost:3001/account/`);
+    const data = await fetchAccount.json();
+    return { data };
+  }

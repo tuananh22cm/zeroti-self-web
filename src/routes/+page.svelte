@@ -1,29 +1,37 @@
-<script>
-	import welcome from '$lib/images/svelte-welcome.webp';
-	import welcome_fallback from '$lib/images/svelte-welcome.png';
-
-	import "./+page.css"
-</script>
-
-<svelte:head>
+<script context="module" lang="ts">
+	import { writable } from 'svelte/store';
+	import DataGrid from '../components/ag-grid-community/DataGrid.svelte';
+	
+	// Create a writable store for the selected variable
+	export let selected = writable('');
+	
+	// Export the load function from +page.ts
+	export { load } from './+page';
+  </script>
+  
+  <script lang="ts">
+	import { load } from "./+page";
+	load();
+	
+	export let data;
+    const initialValue = data.data[0];
+  selected.set(initialValue);
+	$: console.log('Changed selected:', $selected);
+	$: console.log('Updated options:', data);
+  </script>
+  
+  <svelte:head>
 	<title>Home</title>
 	<meta name="description" content="Svelte demo app" />
-</svelte:head>
-
-<section>
-	<picture>
-		<source srcset={welcome} type="image/webp" />
-		<img src={welcome_fallback} alt="Welcome" />
-	</picture>
-</section>
-
-<section>
-	<div>
-		<h2>ZWI Page Scan</h2>
-	</div>
+  </svelte:head>
+  
+  <section>
+	<select bind:value={$selected}>
+	  {#each data.data as value}<option value={value}>{value.name}</option>{/each}
+	</select>
+  </section>
+  <section>
+	<DataGrid data={data.data} {columns} />
 	
-	<div>
-		<h2>ZWI SEO Insight</h2>
-		<p>Get SEO information about your page</p>
-	</div>
-</section>
+  </section>
+  

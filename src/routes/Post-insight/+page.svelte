@@ -10,11 +10,6 @@
 			name: '_id',
 			formatter: (cell: string) => html(`<a href='/Post-insight/${cell}'>${cell}</a>`)
 		},
-		{
-			id: 'rawUrl',
-			name: 'rawUrl',
-			formatter: (cell: string) => html(`<p>${cell}</p>`)
-		},
 	];
 	let page = '';
 </script>

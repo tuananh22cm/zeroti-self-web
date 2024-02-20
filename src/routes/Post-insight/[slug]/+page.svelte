@@ -1,7 +1,11 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	export let data;
-	console.log('dataaa :',data)
+	import {selected} from "../../+page.svelte";
+	let assignProfileId:any;
+	selected.subscribe(value => {
+		assignProfileId = value
+	});
 	const handleDelete = async (id:string) => {
 		try {
 			const response = await fetch(`http://localhost:3001/SponsoredPost/${id}`, {
@@ -12,6 +16,8 @@
 			});
 			if (response.ok) {
 				console.log('delete successfully');
+				window.history.back();
+
 			} else {
 				console.error('failed to delete');
 			}
@@ -20,6 +26,7 @@
 	interface IPayLoad{
 		url:string,
 		post:string
+		assignProfile:string
 	}
 	const handleGetProfile= async (payload:IPayLoad) =>{
 		console.log("payload :",payload);
@@ -32,7 +39,7 @@
 				body:JSON.stringify(payload)
 			});
 			if (response.ok) {
-				console.log('delete successfully');
+				console.log('post successfully');
 			} else {
 				console.error('failed to delete');
 			}
@@ -74,9 +81,9 @@
 			</li>
 		</ul> -->
 		<div>
-			<button on:click={()=>handleGetProfile({url:data.data[0].url,post:data.data[0]._id})}>Get Profile</button>
+			<button on:click={()=>handleGetProfile({url:data.data[0].url,post:data.data[0]._id,assignProfile:assignProfileId._id})}>Get Profile</button>
 			<button>Save</button>
-			<button on:click={()=>handleDelete(data.data[0].id)}>Delete Post</button>
+			<button on:click={()=>handleDelete(data.data[0]._id)}>Delete Post</button>
 		</div>
 	</div>
 </div>
