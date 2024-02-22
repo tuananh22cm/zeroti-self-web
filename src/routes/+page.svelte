@@ -1,37 +1,101 @@
 <script context="module" lang="ts">
 	import { writable } from 'svelte/store';
 	import DataGrid from '../components/ag-grid-community/DataGrid.svelte';
-	
-	// Create a writable store for the selected variable
+	import { html, h } from 'gridjs';
 	export let selected = writable('');
-	
-	// Export the load function from +page.ts
 	export { load } from './+page';
-  </script>
-  
-  <script lang="ts">
-	import { load } from "./+page";
+</script>
+
+<script lang="ts">
+	import { load } from './+page';
 	load();
-	
+
+	const handleDelete = async (id: string) => {
+		try {
+			const response = await fetch(`http://localhost:3001/profileScan/${id}`, {
+				method: 'DELETE',
+				headers: {
+					'Content-Type': 'application/json'
+				}
+			});
+			if (response.ok) {
+				window.location.reload();
+			} else {
+				console.error('failed to delete');
+			}
+		} catch (error) {}
+	};
+
+	const columns = [
+		{
+			id: 'name',
+			name: 'Name'
+		},
+		{
+			id: 'cmtTime',
+			name: 'Comment Time'
+		},
+		{
+			id: 'content',
+			name: 'Content'
+		},
+		{
+			id: '_id',
+			name: 'ID',
+			visible: false
+		},
+		{
+			id: 'action',
+			name: 'Action',
+			formatter: (cell: string, row: any) => {
+				return h(
+					'button',
+					{
+						onClick: () => handleDelete(row.cells[3].data) // Assuming the 'id' column is at index 3, adjust as needed
+					},
+					'❌'
+				);
+			}
+		}
+	];
+
 	export let data;
-    const initialValue = data.data[0];
-  selected.set(initialValue);
-	$: console.log('Changed selected:', $selected);
-	$: console.log('Updated options:', data);
-  </script>
-  
-  <svelte:head>
+	let selectedAccountId: string;
+	let listProfile = data.listProfile;
+
+	const handleGetListProfile = async (id: string) => {
+		console.log(id);
+		const fetchProfile = await fetch(`http://localhost:3001/profileScan/account?account=${id}`);
+		const listProfile = await fetchProfile.json();
+		return listProfile;
+	};
+
+	$: if (selectedAccountId) {
+		handleGetListProfile(selectedAccountId).then((result) => {
+			listProfile = result;
+		});
+	}
+
+	const initialValue = data?.data[0];
+	if (initialValue) {
+		selectedAccountId = initialValue._id;
+	}
+
+	$: console.log('Changed selected:', selectedAccountId);
+</script>
+
+<svelte:head>
 	<title>Home</title>
 	<meta name="description" content="Svelte demo app" />
-  </svelte:head>
-  
-  <section>
-	<select bind:value={$selected}>
-	  {#each data.data as value}<option value={value}>{value.name}</option>{/each}
+</svelte:head>
+
+<section>
+	<select on:change={() => {}} value={selectedAccountId}>
+		{#each data.data as value}
+			<option value={value._id}>{value.name}</option>
+		{/each}
 	</select>
-  </section>
-  <section>
-	<DataGrid data={data.data} {columns} />
-	
-  </section>
-  
+</section>
+<section>
+	<DataGrid data={listProfile} {columns} />
+</section>

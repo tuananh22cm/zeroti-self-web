@@ -1,11 +1,20 @@
-<script>
+<script lang="ts">
 	import { page } from '$app/stores';
 	import logo from '$lib/images/svelte-logo.svg';
-	import github from '$lib/images/github.svg';
-	
 	import "./Header.css"
+	import { selected } from '../../routes/+page.svelte';
+	let nameAccount:any ;
+	selected.subscribe(value => {
+    nameAccount = value;
+  });
+	console.log("nameAccount :",nameAccount)
 </script>
-
+<style>
+.nameProfile{
+	font-size: 25px;
+	margin-right: 20px;
+}
+</style>
 <header>
 	<div class="corner">
 		<a href="https://kit.svelte.dev">
@@ -27,18 +36,13 @@
 			<li aria-current={$page.url.pathname.startsWith('/seo-insight') ? 'page' : undefined}>
 				<a href="/Account-management">Account management</a>
 			</li>
-			<li aria-current={$page.url.pathname === '/about' ? 'page' : undefined}>
-				<a href="/about">About ZWI</a>
-			</li>
 		</ul>
 		<svg viewBox="0 0 2 3" aria-hidden="true">
 			<path d="M0,0 L0,3 C0.5,3 0.5,3 1,2 L2,0 Z" />
 		</svg>
 	</nav>
 
-	<div class="corner">
-		<a href="https://github.com/sveltejs/kit">
-			<img src={github} alt="GitHub" />
-		</a>
+	<div >
+		<p class="nameProfile" style="color:red ">{nameAccount.name}</p>
 	</div>
 </header>
