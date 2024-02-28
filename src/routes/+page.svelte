@@ -62,14 +62,36 @@
 	export let data;
 	let selectedAccountId: string;
 	let listProfile = data.listProfile;
-
+	console.log('listProfile :', listProfile);
 	const handleGetListProfile = async (id: string) => {
 		console.log(id);
 		const fetchProfile = await fetch(`http://localhost:3001/profileScan/account?account=${id}`);
 		const listProfile = await fetchProfile.json();
 		return listProfile;
 	};
-
+	const handleSendMessage = async () => {
+		const listId = listProfile.map((item: any) => {
+			return {
+				idProfile:item._id,
+				profileUrl:item.link,
+				accountWorker:selectedAccountId
+			}
+		});
+		try {
+			const response = await fetch(`http://localhost:3001/account/sendMessage`, {
+				method: 'PUT',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({ listProfile: listId })
+			});
+			if (response.ok) {
+				console.log('send message successfully');
+			} else {
+				console.error('failed to delete');
+			}
+		} catch (error) {}
+	};
 	$: if (selectedAccountId) {
 		handleGetListProfile(selectedAccountId).then((result) => {
 			listProfile = result;
@@ -98,4 +120,27 @@
 </section>
 <section>
 	<DataGrid data={listProfile} {columns} />
+	<div class="right">
+		<button on:click={handleSendMessage} class="send-message">Send Message</button>
+	</div>
 </section>
+
+<style>
+	.send-message {
+		cursor: pointer;
+		background-color: red;
+		color: aliceblue;
+		border: none;
+		padding: 10px;
+		transition: 0.2s;
+	}
+	.send-message:hover {
+		opacity: 0.8;
+		transform: scale(1.2);
+	}
+	.right {
+		display: flex;
+		justify-content: end;
+		padding: 20px;
+	}
+</style>
