@@ -2,12 +2,12 @@
 	import { writable } from 'svelte/store';
 	import DataGrid from '../components/ag-grid-community/DataGrid.svelte';
 	import { html, h } from 'gridjs';
-	export interface IGlobalAccount{
-		_id:string;
-		name:string;
-		link:string;
-		account:string
-	};
+	export interface IGlobalAccount {
+		_id: string;
+		name: string;
+		link: string;
+		account: string;
+	}
 	export let selected = writable<IGlobalAccount | null>(null);
 	export { load } from './+page';
 </script>
@@ -67,9 +67,11 @@
 
 	export let data;
 	let selectedAccountId: string;
+	let nameAccount: string;
 	const unsubscribe = selected.subscribe((value) => {
-		selectedAccountId =value ? value._id:"";
-  });
+		selectedAccountId = value ? value._id : '';
+		nameAccount = value ? value.name : '';
+	});
 	let listProfile = data.listProfile;
 	const handleGetListProfile = async (id: string) => {
 		const fetchProfile = await fetch(`http://localhost:3001/profileScan/account?account=${id}`);
@@ -79,10 +81,11 @@
 	const handleSendMessage = async () => {
 		const listId = listProfile.map((item: any) => {
 			return {
-				idProfile:item._id,
-				profileUrl:item.link,
-				accountWorker:selectedAccountId
-			}
+				idProfile: item._id,
+				profileUrl: item.link,
+				accountWorker: selectedAccountId,
+				account:nameAccount
+			};
 		});
 		try {
 			const response = await fetch(`http://localhost:3001/account/sendMessage`, {
@@ -105,17 +108,36 @@
 		});
 	}
 	const handleChange = (event: Event) => {
-    const selectedValue = (event.target as HTMLSelectElement).value;
-    const selectedOption = data.data.find((item: IGlobalAccount) => item._id === selectedValue);
-    console.log("selectedOption:", selectedOption);
-    selected.set(selectedOption || null);
-  };
+		const selectedValue = (event.target as HTMLSelectElement).value;
+		const selectedOption = data.data.find((item: IGlobalAccount) => item._id === selectedValue);
+		console.log('selectedOption:', selectedOption);
+		selected.set(selectedOption || null);
+		// Log the updated selectedAccountId and nameAccount
+		console.log('selectedAccountId:', selectedAccountId);
+    console.log('nameAccount:', nameAccount);
+	};
+	const handleScroll= async()=>{
+		try {
+			const response = await fetch(`http://localhost:3001/account/scroll`, {
+				method: 'PUT',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({ account: nameAccount })
+			});
+			if (response.ok) {
+				console.log('scroll is in progress');
+			} else {
+				console.error('failed to delete');
+			}
+		} catch (error) {
+			console.log("error :",error);
+		}
+	}
 	const initialValue = data?.data[0];
 	if (initialValue) {
 		selected.set(initialValue);
 	}
-	
-	$: console.log('Changed selected:', selectedAccountId);
 </script>
 
 <svelte:head>
@@ -129,6 +151,7 @@
 			<option value={value._id}>{value.name}</option>
 		{/each}
 	</select>
+	<button on:click={handleScroll}>Let 's find more Post'</button>
 </section>
 <section>
 	<DataGrid data={listProfile} {columns} />

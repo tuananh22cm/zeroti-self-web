@@ -3,9 +3,12 @@
 	export let data;
 	import {selected} from "../../+page.svelte";
 	let assignProfileId:any;
+	let account:any;
 	selected.subscribe(value => {
-		assignProfileId = value
+		assignProfileId = value?._id
+		account = value?.name
 	});
+	console.log('assign:',assignProfileId)
 	const handleDelete = async (id:string) => {
 		try {
 			const response = await fetch(`http://localhost:3001/SponsoredPost/${id}`, {
@@ -27,6 +30,7 @@
 		url:string,
 		post:string
 		assignProfile:string
+		account:string
 	}
 	const handleGetProfile= async (payload:IPayLoad) =>{
 		console.log("payload :",payload);
@@ -44,7 +48,7 @@
 				console.error('failed to delete');
 			}
 		} catch (error) {
-			
+		console.log('error :',error)	
 		}
 	}
 </script>
@@ -81,7 +85,7 @@
 			</li>
 		</ul> -->
 		<div>
-			<button on:click={()=>handleGetProfile({url:data.data[0].url,post:data.data[0]._id,assignProfile:assignProfileId._id})}>Get Profile</button>
+			<button on:click={()=>handleGetProfile({url:data.data[0].url,post:data.data[0]._id,assignProfile:assignProfileId,account})}>Get Profile</button>
 			<button>Save</button>
 			<button on:click={()=>handleDelete(data.data[0]._id)}>Delete Post</button>
 		</div>
