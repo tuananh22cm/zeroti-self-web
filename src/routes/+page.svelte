@@ -2,7 +2,13 @@
 	import { writable } from 'svelte/store';
 	import DataGrid from '../components/ag-grid-community/DataGrid.svelte';
 	import { html, h } from 'gridjs';
-	export let selected = writable('');
+	export interface IGlobalAccount{
+		_id:string;
+		name:string;
+		link:string;
+		account:string
+	};
+	export let selected = writable<IGlobalAccount | null>(null);
 	export { load } from './+page';
 </script>
 
@@ -61,10 +67,11 @@
 
 	export let data;
 	let selectedAccountId: string;
+	const unsubscribe = selected.subscribe((value) => {
+		selectedAccountId =value ? value._id:"";
+  });
 	let listProfile = data.listProfile;
-	console.log('listProfile :', listProfile);
 	const handleGetListProfile = async (id: string) => {
-		console.log(id);
 		const fetchProfile = await fetch(`http://localhost:3001/profileScan/account?account=${id}`);
 		const listProfile = await fetchProfile.json();
 		return listProfile;
@@ -97,12 +104,17 @@
 			listProfile = result;
 		});
 	}
-
+	const handleChange = (event: Event) => {
+    const selectedValue = (event.target as HTMLSelectElement).value;
+    const selectedOption = data.data.find((item: IGlobalAccount) => item._id === selectedValue);
+    console.log("selectedOption:", selectedOption);
+    selected.set(selectedOption || null);
+  };
 	const initialValue = data?.data[0];
 	if (initialValue) {
-		selectedAccountId = initialValue._id;
+		selected.set(initialValue);
 	}
-
+	
 	$: console.log('Changed selected:', selectedAccountId);
 </script>
 
@@ -112,7 +124,7 @@
 </svelte:head>
 
 <section>
-	<select on:change={() => {}} value={selectedAccountId}>
+	<select on:change={handleChange} value={selectedAccountId}>
 		{#each data.data as value}
 			<option value={value._id}>{value.name}</option>
 		{/each}

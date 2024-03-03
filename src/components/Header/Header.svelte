@@ -2,12 +2,9 @@
 	import { page } from '$app/stores';
 	import logo from '$lib/images/svelte-logo.svg';
 	import "./Header.css"
-	import { selected } from '../../routes/+page.svelte';
-	let nameAccount:any ;
-	selected.subscribe(value => {
-    nameAccount = value;
-  });
-	console.log("nameAccount :",nameAccount)
+	import { selected, type IGlobalAccount } from '../../routes/+page.svelte';
+	let value: IGlobalAccount|null ;
+	$: value = $selected;
 </script>
 <style>
 .nameProfile{
@@ -43,6 +40,6 @@
 	</nav>
 
 	<div >
-		<p class="nameProfile" style="color:red ">{nameAccount.name}</p>
+		<p class="nameProfile" style="color:red ">{value ? value.name : ""}</p>
 	</div>
 </header>
