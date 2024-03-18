@@ -8,7 +8,6 @@
 		assignProfileId = value?._id
 		account = value?.name
 	});
-	console.log('assign:',assignProfileId)
 	const handleDelete = async (id:string) => {
 		try {
 			const response = await fetch(`http://localhost:3001/SponsoredPost/${id}`, {
@@ -33,7 +32,6 @@
 		account:string
 	}
 	const handleGetProfile= async (payload:IPayLoad) =>{
-		console.log("payload :",payload);
 		try {
 			const response = await fetch(`http://localhost:3001/profileScan/`, {
 				method: 'POST',
@@ -43,14 +41,34 @@
 				body:JSON.stringify(payload)
 			});
 			if (response.ok) {
-				console.log('post successfully');
+				console.log('get profile successfully');
+				handleTrashPost(data.data[0]._id)
 			} else {
-				console.error('failed to delete');
+				console.error('failed to get data');
 			}
 		} catch (error) {
 		console.log('error :',error)	
 		}
 	}
+	const handleTrashPost =async (id:string) => {
+		try {
+			const response = await fetch(`http://localhost:3001/SponsoredPost/trash`, {
+				method: 'PUT',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({ postId: id ,url:data.data[0].url})
+
+			});
+			if (response.ok) {
+				console.log('add to trash post successfully');
+				window.history.back();
+
+			} else {
+				console.error('failed to add to trash post');
+			}
+		} catch (error) {}
+	};
 </script>
 
 <h1>
@@ -63,31 +81,15 @@
 		</p>
 	</div>
 	<div class="post-detail">
-		<!-- <ul>
-			<li>Post Name :{data.data[0].url}</li>
-			<li>Like :</li>
-			<li>CMT</li>
-			<li>
-				Category <select name="cars" id="cars">
-					<option value="volvo">Volvo</option>
-					<option value="saab">Saab</option>
-					<option value="opel">Opel</option>
-					<option value="audi">Audi</option>
-				</select>
-			</li>
-			<li>
-				Assign profile <select name="cars" id="cars">
-					<option value="volvo">Volvo</option>
-					<option value="saab">Saab</option>
-					<option value="opel">Opel</option>
-					<option value="audi">Audi</option>
-				</select>
-			</li>
-		</ul> -->
+		<a href={data.data[0].url} target="_blank" >
+			{@html data.data[0].url}
+
+		</a>
+		
 		<div>
 			<button on:click={()=>handleGetProfile({url:data.data[0].url,post:data.data[0]._id,assignProfile:assignProfileId,account})}>Get Profile</button>
-			<button>Save</button>
-			<button on:click={()=>handleDelete(data.data[0]._id)}>Delete Post</button>
+			<button on:click={()=>handleTrashPost(data.data[0]._id)}>Trash post 🗑</button>
+			<button on:click={()=>handleDelete(data.data[0]._id)}>delete ❌</button>
 		</div>
 	</div>
 </div>

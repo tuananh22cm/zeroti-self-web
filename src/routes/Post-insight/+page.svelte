@@ -18,8 +18,8 @@
 	<meta name="description" content="Hello" />
 </svelte:head>
 <section>
-	<h1>Post Insight - Zeroti Web Insight</h1>
 	<input placeholder="e.g. draphony.de" bind:value={page} />
 	<button  disabled={page.length === 0}>Search</button>
 </section>
+
 <DataGrid data={data.data} {columns} />

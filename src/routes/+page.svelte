@@ -8,6 +8,7 @@
 		link: string;
 		account: string;
 	}
+	import { onMount } from 'svelte';
 	export let selected = writable<IGlobalAccount | null>(null);
 	export { load } from './+page';
 </script>
@@ -16,22 +17,39 @@
 	import { load } from './+page';
 	load();
 
-	const handleDelete = async (id: string) => {
+	onMount(() => {
+		const storedOption = localStorage.getItem('selectedOption');
+		if (storedOption) {
+			selected.set(JSON.parse(storedOption));
+
+		}
+	});
+
+	const handleDelete = async (id: string, url: string) => {
 		try {
-			const response = await fetch(`http://localhost:3001/profileScan/${id}`, {
-				method: 'DELETE',
+			const response = await fetch(`http://localhost:3001/profileScan/trash`, {
+				method: 'PUT',
 				headers: {
 					'Content-Type': 'application/json'
-				}
+				},
+				body: JSON.stringify({ profileId: id, url })
 			});
 			if (response.ok) {
-				window.location.reload();
+				handleGetListProfile(selectedAccountId).then((result) => {
+					listProfile = result;
+				});
 			} else {
 				console.error('failed to delete');
 			}
 		} catch (error) {}
 	};
-
+	const calculateDay=(hour:string):string=>{
+  		if(Number(hour)>24){
+    		return Math.round(Number(hour)/24)+" Ngày"
+  		}
+  		else
+    		return hour +" Giờ"
+	}
 	const columns = [
 		{
 			id: 'name',
@@ -39,7 +57,8 @@
 		},
 		{
 			id: 'cmtTime',
-			name: 'Comment Time'
+			name: 'Comment Time',
+			formatter: (cell:string) => `${calculateDay(cell)}`
 		},
 		{
 			id: 'content',
@@ -47,8 +66,13 @@
 		},
 		{
 			id: '_id',
-			name: 'ID',
-			visible: false
+			name: '_id',
+			hidden: true
+		},
+		{
+			id: 'link',
+			name: 'link',
+			hidden: true
 		},
 		{
 			id: 'action',
@@ -57,7 +81,7 @@
 				return h(
 					'button',
 					{
-						onClick: () => handleDelete(row.cells[3].data) // Assuming the 'id' column is at index 3, adjust as needed
+						onClick: () => handleDelete(row.cells[3].data, row.cells[4].data) // Assuming the 'id' column is at index 3, adjust as needed
 					},
 					'❌'
 				);
@@ -84,7 +108,7 @@
 				idProfile: item._id,
 				profileUrl: item.link,
 				accountWorker: selectedAccountId,
-				account:nameAccount
+				account: nameAccount
 			};
 		});
 		try {
@@ -110,13 +134,10 @@
 	const handleChange = (event: Event) => {
 		const selectedValue = (event.target as HTMLSelectElement).value;
 		const selectedOption = data.data.find((item: IGlobalAccount) => item._id === selectedValue);
-		console.log('selectedOption:', selectedOption);
 		selected.set(selectedOption || null);
-		// Log the updated selectedAccountId and nameAccount
-		console.log('selectedAccountId:', selectedAccountId);
-    console.log('nameAccount:', nameAccount);
+		localStorage.setItem('selectedOption', JSON.stringify(selectedOption));
 	};
-	const handleScroll= async()=>{
+	const handleScroll = async () => {
 		try {
 			const response = await fetch(`http://localhost:3001/account/scroll`, {
 				method: 'PUT',
@@ -131,9 +152,27 @@
 				console.error('failed to delete');
 			}
 		} catch (error) {
-			console.log("error :",error);
+			console.log('error :', error);
 		}
-	}
+	};
+	const handleScrollFromSearch = async () => {
+		try {
+			const response = await fetch(`http://localhost:3001/account/scrollBySearch`, {
+				method: 'PUT',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({ account: nameAccount })
+			});
+			if (response.ok) {
+				console.log('scroll is in progress');
+			} else {
+				console.error('failed to delete');
+			}
+		} catch (error) {
+			console.log('error :', error);
+		}
+	};
 	const initialValue = data?.data[0];
 	if (initialValue) {
 		selected.set(initialValue);
@@ -151,12 +190,15 @@
 			<option value={value._id}>{value.name}</option>
 		{/each}
 	</select>
-	<button on:click={handleScroll}>Let 's find more Post'</button>
+</section>
+<section style="display: flex; flex-direction:row-reverse;margin-bottom:20px;gap:30px">
+	<button on:click={handleScrollFromSearch}>or find by search  🔍</button>
+	<button on:click={handleScroll}>Let's find more Post 🔍</button>
 </section>
 <section>
 	<DataGrid data={listProfile} {columns} />
 	<div class="right">
-		<button on:click={handleSendMessage} class="send-message">Send Message</button>
+		<button on:click={handleSendMessage} class="send-message">Send Message 📩</button>
 	</div>
 </section>
 
